@@ -2,6 +2,7 @@
 using SafeNetAPI.Data;
 using SafeNetAPI.Dto;
 using SafeNetAPI.Models;
+using System.Security.Claims;
 
 namespace SafeNetAPI.Services.Request
 {
@@ -12,10 +13,9 @@ namespace SafeNetAPI.Services.Request
         {
             _context = context;
         }
-        public async Task<ResponseModel<List<RequestModel>>> CreateRequest(RequestCreationDto requestCreationDto)
+        public async Task<ResponseModel<List<RequestModel>>> CreateRequest(RequestCreationDto requestCreationDto, string UserId)
         {
             ResponseModel<List<RequestModel>> response = new ResponseModel<List<RequestModel>>();
-
             try
             {
                 var artist = new RequestModel()
@@ -24,7 +24,9 @@ namespace SafeNetAPI.Services.Request
                     Ip = requestCreationDto.Ip,
                     Path = requestCreationDto.Path,
                     Body = requestCreationDto.Body,
+                    UserId = UserId,
                     Date = DateTime.Now
+
                 };
 
                 _context.Add(artist);
@@ -43,13 +45,13 @@ namespace SafeNetAPI.Services.Request
             }
         }
 
-        public async Task<ResponseModel<List<RequestModel>>> ListRequest()
+        public async Task<ResponseModel<List<RequestModel>>> ListRequest(string userId)
         {
             ResponseModel<List<RequestModel>> response = new ResponseModel<List<RequestModel>>();
 
             try
             {
-                var requests = await _context.Request.ToListAsync();
+                var requests = await _context.Request.Where(u => u.UserId == userId).ToListAsync();
                 response.Data = requests;
                 response.Message = "Success";
 

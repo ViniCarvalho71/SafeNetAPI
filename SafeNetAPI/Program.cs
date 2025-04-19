@@ -1,6 +1,8 @@
 using SafeNetAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using SafeNetAPI.Services.Request;
+using SafeNetAPI.Models;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +19,12 @@ builder.Services.AddDbContext<AppDbContext>(option =>
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+//builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
+
+
+builder.Services.AddIdentityApiEndpoints<User>().AddEntityFrameworkStores<AppDbContext>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -30,6 +38,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapControllers().RequireAuthorization();
+
+app.MapIdentityApi<User>();
 
 app.Run();

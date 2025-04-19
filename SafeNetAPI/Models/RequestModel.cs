@@ -1,4 +1,6 @@
-﻿namespace SafeNetAPI.Models
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace SafeNetAPI.Models
 {
     public class RequestModel
     {
@@ -9,7 +11,8 @@
         public string Ip { get; set; }
         public DateTime Date { get; set; }
 
-        /*        public string UserId { get; set; }  // FK para Identity
-                public ApplicationUser User { get; set; }  // navegação*/
+        // Chave estrangeira para o Identity User
+        public string UserId { get; set; }
+        public User User { get; set; }
     }
 }

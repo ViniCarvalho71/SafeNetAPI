@@ -3,10 +3,12 @@ using SafeNetAPI.Dto;
 using SafeNetAPI.Models;
 using SafeNetAPI.Services.Request;
 using System.Collections.Generic;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 
 namespace SafeNetAPI.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class RequestController : ControllerBase
@@ -21,7 +23,12 @@ namespace SafeNetAPI.Controllers
         [HttpPost("CreateRequest")]
         public async Task<ActionResult<ResponseModel<List<RequestModel>>>> CreateRequest(RequestCreationDto requestCreationDto)
         {
-            var artists = await _requestInterface.CreateRequest(requestCreationDto);
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User is not authenticated.");
+            }
+            var artists = await _requestInterface.CreateRequest(requestCreationDto , userId);
             return Ok(artists);
         }
 
@@ -29,7 +36,13 @@ namespace SafeNetAPI.Controllers
 
         public async Task<ActionResult<ResponseModel<List<RequestModel>>>> ListRequest()
         {
-            var requests = await _requestInterface.ListRequest();
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User is not authenticated.");
+            }
+
+            var requests = await _requestInterface.ListRequest(userId);
             return Ok(requests);
         }
     }
