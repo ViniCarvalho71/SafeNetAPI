@@ -3,6 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using SafeNetAPI.Services.Request;
 using SafeNetAPI.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using SafeNetAPI.Services.User;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +17,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IRequestInterface, RequestService>();
+builder.Services.AddScoped<IUserInterface, UserService>();
+
+
 
 builder.Services.AddDbContext<AppDbContext>(option =>
 {
@@ -34,6 +41,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
@@ -42,4 +50,8 @@ app.MapControllers().RequireAuthorization();
 
 app.MapIdentityApi<User>();
 
+app.MapPost("/logout", async (SignInManager<User> SignInManager, [FromBody]object empty ) => {
+    await SignInManager.SignOutAsync();
+    return Results.Ok();
+});
 app.Run();
