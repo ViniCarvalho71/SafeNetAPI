@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SafeNetAPI.Models
 {
-    public class User : IdentityUser
+    public class UserModel : IdentityUser
     {
     }
 }

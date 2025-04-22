@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SafeNetAPI.Dto;
 using SafeNetAPI.Models;
 
 using SafeNetAPI.Services.User;
+using System.Security.Claims;
 
 namespace SafeNetAPI.Controllers
 {
@@ -23,6 +25,13 @@ namespace SafeNetAPI.Controllers
                 return BadRequest(resultado);
 
             return Ok(resultado);
+        }
+        [Authorize]
+        [HttpGet("dados-sensiveis")]
+        public IActionResult GetDados()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Ok($"Seu ID: {userId}");
         }
     }
 }

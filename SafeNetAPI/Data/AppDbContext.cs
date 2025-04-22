@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace SafeNetAPI.Data
 {
-    public class AppDbContext(DbContextOptions options) : IdentityDbContext<User>(options)
+    public class AppDbContext(DbContextOptions options) : IdentityDbContext<UserModel>(options)
     {
 
         public DbSet<RequestModel> Request { get; set; }

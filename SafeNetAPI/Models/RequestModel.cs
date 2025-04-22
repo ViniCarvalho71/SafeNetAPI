@@ -13,6 +13,6 @@ namespace SafeNetAPI.Models
 
         // Chave estrangeira para o Identity User
         public string UserId { get; set; }
-        public User User { get; set; }
+        public UserModel User { get; set; }
     }
 }

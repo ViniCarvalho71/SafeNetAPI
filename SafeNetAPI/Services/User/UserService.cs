@@ -13,11 +13,11 @@ namespace SafeNetAPI.Services.User
     public class UserService : IUserInterface
     {
         private readonly AppDbContext _context;
-        private readonly UserManager<Models.User> _userManager;
+        private readonly UserManager<UserModel> _userManager;
         private readonly IConfiguration _configuration;
-        private readonly IPasswordHasher<Models.User> _passwordHasher;
 
-        public UserService(AppDbContext context, UserManager<Models.User> userManager, IConfiguration configuration)
+
+        public UserService(AppDbContext context, UserManager<UserModel> userManager, IConfiguration configuration)
         {
             _context = context;
             _userManager = userManager;
@@ -25,7 +25,7 @@ namespace SafeNetAPI.Services.User
 
         }
 
-      
+
         public async Task<ResponseModel<string>> RegisterUser(UserCreationDto userCreationDto)
         {
             var response = new ResponseModel<string>();
@@ -37,9 +37,7 @@ namespace SafeNetAPI.Services.User
                 return response;
             }
 
-            var existingUser = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == userCreationDto.Email);
-
+            var existingUser = await _userManager.FindByEmailAsync(userCreationDto.Email);
             if (existingUser != null)
             {
                 response.Status = false;
@@ -47,25 +45,27 @@ namespace SafeNetAPI.Services.User
                 return response;
             }
 
-            var newUser = new Models.User
+            var newUser = new UserModel
             {
                 Email = userCreationDto.Email,
                 UserName = userCreationDto.Email
             };
 
-            newUser.PasswordHash = _passwordHasher.HashPassword(newUser, userCreationDto.Senha);
+            var result = await _userManager.CreateAsync(newUser, userCreationDto.Senha);
+            if (!result.Succeeded)
+            {
+                response.Status = false;
+                response.Message = string.Join(", ", result.Errors.Select(e => e.Description));
+                return response;
+            }
 
-            _context.Users.Add(newUser);
-            await _context.SaveChangesAsync();
-
-            // Agora sim: gerando e salvando o token
+            // Gerar token pessoal e salvar na AspNetUserTokens
             var tokenValue = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
 
-            // Você precisa ter acesso ao UserManager aqui
             await _userManager.SetAuthenticationTokenAsync(
                 newUser,
-                "SafeNetAPI",           // Nome do provedor personalizado
-                "PersonalAccessToken",  // Nome do token
+                "SafeNetAPI",
+                "PersonalAccessToken",
                 tokenValue
             );
 

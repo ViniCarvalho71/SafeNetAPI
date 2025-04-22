@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SafeNetAPI.Dto;
 using SafeNetAPI.Models;
 using SafeNetAPI.Services.Request;
@@ -19,7 +20,7 @@ namespace SafeNetAPI.Controllers
         {
             _requestInterface = requestInterface;
         }
-
+        [Authorize]
         [HttpPost("CreateRequest")]
         public async Task<ActionResult<ResponseModel<List<RequestModel>>>> CreateRequest(RequestCreationDto requestCreationDto)
         {
@@ -32,8 +33,8 @@ namespace SafeNetAPI.Controllers
             return Ok(artists);
         }
 
+        [Authorize]
         [HttpGet("ListRequest")]
-
         public async Task<ActionResult<ResponseModel<List<RequestModel>>>> ListRequest()
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;

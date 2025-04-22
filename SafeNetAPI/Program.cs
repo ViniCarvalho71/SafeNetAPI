@@ -5,6 +5,7 @@ using SafeNetAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SafeNetAPI.Services.User;
+using SafeNetAPI.Services.Token;
 
 
 
@@ -30,7 +31,7 @@ builder.Services.AddDbContext<AppDbContext>(option =>
 builder.Services.AddAuthorization();
 
 
-builder.Services.AddIdentityApiEndpoints<User>().AddEntityFrameworkStores<AppDbContext>();
+builder.Services.AddIdentityApiEndpoints<UserModel>().AddEntityFrameworkStores<AppDbContext>();
 
 var app = builder.Build();
 
@@ -43,14 +44,14 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseHttpsRedirection();
-
+app.UseMiddleware<ApiTokenAuthenticationMiddleware>();
 app.UseAuthorization();
 
-app.MapControllers().RequireAuthorization();
+app.MapControllers();
 
-app.MapIdentityApi<User>();
+app.MapIdentityApi<UserModel>();
 
-app.MapPost("/logout", async (SignInManager<User> SignInManager, [FromBody]object empty ) => {
+app.MapPost("/logout", async (SignInManager<UserModel> SignInManager, [FromBody]object empty ) => {
     await SignInManager.SignOutAsync();
     return Results.Ok();
 });
