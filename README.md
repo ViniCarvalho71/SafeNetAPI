@@ -32,8 +32,8 @@ POST /login -> entra no sistema
 
 ```bash
 # Clone o repositório
-git clone https://github.com/seuusuario/seurepositorio.git
-cd seurepositorio
+git clone https://github.com/ViniCarvalho71/SafeNetAPI/
+cd SafeNetAPI
 
 # Configure o appsettings.json com sua connection string, se necessário
 
