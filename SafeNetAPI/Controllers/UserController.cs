@@ -27,11 +27,10 @@ namespace SafeNetAPI.Controllers
             return Ok(resultado);
         }
         [Authorize]
-        [HttpGet("dados-sensiveis")]
-        public IActionResult GetDados()
+        [HttpGet("auth/check")]
+        public IActionResult CheckAuthentication()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return Ok($"Seu ID: {userId}");
+            return Ok(new { authenticated = true });
         }
     }
 }
