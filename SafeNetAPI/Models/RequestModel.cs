@@ -9,6 +9,7 @@ namespace SafeNetAPI.Models
         public string Path { get; set; }
         public string Body { get; set; }
         public string Ip { get; set; }
+        public int IsMalicious { get; set; }
         public DateTime Date { get; set; }
 
         // Chave estrangeira para o Identity User
