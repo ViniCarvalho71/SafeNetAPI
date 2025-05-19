@@ -46,5 +46,19 @@ namespace SafeNetAPI.Controllers
             var requests = await _requestInterface.ListRequest(userId);
             return Ok(requests);
         }
+        
+        [Authorize]
+        [HttpGet("IpsMaisPerigosos")]
+        public async Task<ActionResult<ResponseModel<List<RequestModel>>>> IpsMaisPerigosos()
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User is not authenticated.");
+            }
+
+            var requests = await _requestInterface.ListRequest(userId);
+            return Ok(requests);
+        }
     }
 }
