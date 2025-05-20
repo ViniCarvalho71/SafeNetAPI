@@ -7,6 +7,9 @@ namespace SafeNetAPI.Services.Request
     {
         Task<ResponseModel<List<RequestModel>>> ListRequest(string userId);
         Task<ResponseModel<List<RequestModel>>> CreateRequest(RequestCreationDto requestCreationDto, string userId);
+        Task<ResponseModel<List<IpCountDto>>> ListTopIp(string userId);
+        
+        Task<ResponseModel<List<PathCountDto>>> ListTopPath(string userId);
 
     }
 }

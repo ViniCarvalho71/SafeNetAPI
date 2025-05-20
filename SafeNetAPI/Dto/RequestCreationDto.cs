@@ -7,5 +7,7 @@
         public string Body { get; set; }
         public string Ip { get; set; }
 
+        public int IsMalicious { get; set; }
+
     }
 }

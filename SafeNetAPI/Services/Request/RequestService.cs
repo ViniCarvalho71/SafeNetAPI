@@ -24,6 +24,7 @@ namespace SafeNetAPI.Services.Request
                     Ip = requestCreationDto.Ip,
                     Path = requestCreationDto.Path,
                     Body = requestCreationDto.Body,
+                    IsMalicious = requestCreationDto.IsMalicious,
                     UserId = UserId,
                     Date = DateTime.Now
 
@@ -66,15 +67,45 @@ namespace SafeNetAPI.Services.Request
 
         }
 
-        public async Task<ResponseModel<List<IpCountDto>>> ListTopIp()
+        public async Task<ResponseModel<List<IpCountDto>>> ListTopIp(string userId)
         {
             ResponseModel<List<IpCountDto>> response = new ResponseModel<List<IpCountDto>>();
             try
             {
-                var request = await _context.Request.GroupBy(x => x.Ip).
+                var request = await _context.Request.
+                    Where(u => u.UserId == userId && u.IsMalicious == 1).GroupBy(x => x.Ip).
                     Select(g => new IpCountDto 
                     {
                         Ip = g.Key,
+                        Quantidade = g.Count()
+                    }).
+                    OrderByDescending(g => g.Quantidade).
+                    ToListAsync();
+                
+                response.Data = request;
+                response.Message = "Success";
+                
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Status = false;
+
+                return response;
+            }
+        }
+        public async Task<ResponseModel<List<PathCountDto>>> ListTopPath(string userId)
+        {
+            ResponseModel<List<PathCountDto>> response = new ResponseModel<List<PathCountDto>>();
+            try
+            {
+                var request = await _context.Request.
+                    Where(u => u.UserId == userId && u.IsMalicious == 1).
+                    GroupBy(x => x.Path).
+                    Select(g => new PathCountDto 
+                    {
+                        Path = g.Key,
                         Quantidade = g.Count()
                     }).
                     OrderByDescending(g => g.Quantidade).

@@ -49,7 +49,7 @@ namespace SafeNetAPI.Controllers
         
         [Authorize]
         [HttpGet("IpsMaisPerigosos")]
-        public async Task<ActionResult<ResponseModel<List<RequestModel>>>> IpsMaisPerigosos()
+        public async Task<ActionResult<ResponseModel<List<IpCountDto>>>> IpsMaisPerigosos()
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
@@ -57,7 +57,21 @@ namespace SafeNetAPI.Controllers
                 return Unauthorized("User is not authenticated.");
             }
 
-            var requests = await _requestInterface.ListRequest(userId);
+            var requests = await _requestInterface.ListTopIp(userId);
+            return Ok(requests);
+        }
+        
+        [Authorize]
+        [HttpGet("PathsMaisPerigosos")]
+        public async Task<ActionResult<ResponseModel<List<PathCountDto>>>> PathsMaisPerigosos()
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User is not authenticated.");
+            }
+
+            var requests = await _requestInterface.ListTopPath(userId);
             return Ok(requests);
         }
     }
