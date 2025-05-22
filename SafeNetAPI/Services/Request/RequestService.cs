@@ -46,13 +46,38 @@ namespace SafeNetAPI.Services.Request
             }
         }
 
-        public async Task<ResponseModel<List<RequestModel>>> ListRequest(string userId)
+        public async Task<ResponseModel<List<RequestModel>>> ListRequest(string userId, string? search)
         {
             ResponseModel<List<RequestModel>> response = new ResponseModel<List<RequestModel>>();
-
+            
             try
             {
-                var requests = await _context.Request.Where(u => u.UserId == userId).ToListAsync();
+                var consultaPorUsuario = _context.Request.Where(u => u.UserId == userId);
+                List<RequestModel> requests = new List<RequestModel>();
+                DateTime? searchDate = null;
+                bool isDate = DateTime.TryParse(search, out var parsedDate);
+                if (isDate)
+                {
+                    searchDate = parsedDate.Date;
+                }
+                
+                if (!string.IsNullOrEmpty(search))
+                {
+                    requests = await consultaPorUsuario
+                        .Where(r =>
+                            r.Ip.Contains(search) ||
+                            r.Agent.Contains(search) ||
+                            r.Body.Contains(search) ||
+                            r.Path.Contains(search) ||
+                            (isDate && r.Date.Date == searchDate.Value)
+                        )
+                        .ToListAsync();
+                }
+                else
+                {
+                    requests = await consultaPorUsuario.ToListAsync();
+                }
+                
                 response.Data = requests;
                 response.Message = "Success";
 
@@ -124,5 +149,34 @@ namespace SafeNetAPI.Services.Request
                 return response;
             }
         }
+
+        public async Task<ResponseModel<KpisDto>> ListKpis(string userId)
+        {
+            ResponseModel<KpisDto> response = new ResponseModel<KpisDto>();
+            try
+            {
+                var ultimas24h = DateTime.UtcNow.AddHours(-24);
+                var query_from_this_user = _context.Request.Where(u => u.UserId == userId);
+                KpisDto kpis = new KpisDto
+                {
+                    RequisicoesBenignas = query_from_this_user.Count(r => r.IsMalicious == 0),
+                    RequisicoesMaliciosas = query_from_this_user.Count(r => r.IsMalicious == 1),
+                    RequisicoesNasUltimasVinteQuatroHoras = query_from_this_user.Count(r => r.Date >= ultimas24h)
+                };
+                
+                
+                response.Data = kpis;
+                response.Message = "Success";
+                
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Status = false;
+
+                return response;
+            }
+        } 
     }
 }

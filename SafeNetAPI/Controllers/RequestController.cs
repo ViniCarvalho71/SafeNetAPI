@@ -42,8 +42,23 @@ namespace SafeNetAPI.Controllers
             {
                 return Unauthorized("User is not authenticated.");
             }
+            string? search = String.Empty;
 
-            var requests = await _requestInterface.ListRequest(userId);
+            var requests = await _requestInterface.ListRequest(userId, search);
+            return Ok(requests);
+        }
+        [Authorize]
+        [HttpGet("ListRequest/{search}")]
+        public async Task<ActionResult<ResponseModel<List<RequestModel>>>> ListRequest(string search)
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User is not authenticated.");
+            }
+
+
+            var requests = await _requestInterface.ListRequest(userId, search);
             return Ok(requests);
         }
         
@@ -62,8 +77,8 @@ namespace SafeNetAPI.Controllers
         }
         
         [Authorize]
-        [HttpGet("PathsMaisPerigosos")]
-        public async Task<ActionResult<ResponseModel<List<PathCountDto>>>> PathsMaisPerigosos()
+        [HttpGet("PathsMaisAtacados")]
+        public async Task<ActionResult<ResponseModel<List<PathCountDto>>>> PathsMaisAtacados()
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
@@ -72,6 +87,19 @@ namespace SafeNetAPI.Controllers
             }
 
             var requests = await _requestInterface.ListTopPath(userId);
+            return Ok(requests);
+        }
+
+        [Authorize]
+        [HttpGet("Kpis")]
+        public async Task<ActionResult<ResponseModel<KpisDto>>> Kpis()
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User is not authenticated.");
+            }
+            var requests = await _requestInterface.ListKpis(userId);
             return Ok(requests);
         }
     }
