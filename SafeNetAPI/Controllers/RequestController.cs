@@ -35,7 +35,7 @@ namespace SafeNetAPI.Controllers
 
         [Authorize]
         [HttpGet("ListRequest")]
-        public async Task<ActionResult<ResponseModel<List<RequestModel>>>> ListRequest()
+        public async Task<ActionResult<ResponseModel<List<RequestModel>>>> ListRequest(int page = 1, int pageSize = 10)
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
@@ -44,12 +44,12 @@ namespace SafeNetAPI.Controllers
             }
             string? search = String.Empty;
 
-            var requests = await _requestInterface.ListRequest(userId, search);
+            var requests = await _requestInterface.ListRequest(userId, search,page,pageSize);
             return Ok(requests);
         }
         [Authorize]
         [HttpGet("ListRequest/{search}")]
-        public async Task<ActionResult<ResponseModel<List<RequestModel>>>> ListRequest(string search)
+        public async Task<ActionResult<ResponseModel<List<RequestModel>>>> ListRequest(string search, int page = 1, int pageSize = 10)
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
@@ -58,7 +58,7 @@ namespace SafeNetAPI.Controllers
             }
 
 
-            var requests = await _requestInterface.ListRequest(userId, search);
+            var requests = await _requestInterface.ListRequest(userId, search,page,pageSize);
             return Ok(requests);
         }
         

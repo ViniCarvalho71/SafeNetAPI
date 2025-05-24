@@ -46,39 +46,41 @@ namespace SafeNetAPI.Services.Request
             }
         }
 
-        public async Task<ResponseModel<List<RequestModel>>> ListRequest(string userId, string? search)
+        public async Task<ResponseModel<RequestListDto>> ListRequest(string userId, string? search, int page,int pageSize)
         {
-            ResponseModel<List<RequestModel>> response = new ResponseModel<List<RequestModel>>();
-            
+            ResponseModel<RequestListDto> response = new ResponseModel<RequestListDto>();
+
             try
             {
                 var consultaPorUsuario = _context.Request.Where(u => u.UserId == userId);
-                List<RequestModel> requests = new List<RequestModel>();
+                
+                var query = consultaPorUsuario;
+               
                 DateTime? searchDate = null;
                 bool isDate = DateTime.TryParse(search, out var parsedDate);
                 if (isDate)
                 {
                     searchDate = parsedDate.Date;
                 }
-                
+
                 if (!string.IsNullOrEmpty(search))
                 {
-                    requests = await consultaPorUsuario
+                    query = consultaPorUsuario
                         .Where(r =>
                             r.Ip.Contains(search) ||
                             r.Agent.Contains(search) ||
                             r.Body.Contains(search) ||
                             r.Path.Contains(search) ||
                             (isDate && r.Date.Date == searchDate.Value)
-                        )
-                        .ToListAsync();
+                        );
                 }
-                else
-                {
-                    requests = await consultaPorUsuario.ToListAsync();
-                }
+
+                RequestListDto resposta = new RequestListDto(query.Skip((page - 1) * pageSize).Take(pageSize).ToList(), query.Count());
+
+                   
                 
-                response.Data = requests;
+                
+                response.Data = resposta;
                 response.Message = "Success";
 
                 return response;
@@ -177,6 +179,8 @@ namespace SafeNetAPI.Services.Request
 
                 return response;
             }
-        } 
+        }
+
+  
     }
 }

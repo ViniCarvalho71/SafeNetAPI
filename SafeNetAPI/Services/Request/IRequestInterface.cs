@@ -5,7 +5,7 @@ namespace SafeNetAPI.Services.Request
 {
     public interface IRequestInterface
     {
-        Task<ResponseModel<List<RequestModel>>> ListRequest(string userId, string search);
+        Task<ResponseModel<RequestListDto>> ListRequest(string userId, string search, int page, int pageSize);
         Task<ResponseModel<List<RequestModel>>> CreateRequest(RequestCreationDto requestCreationDto, string userId);
         Task<ResponseModel<List<IpCountDto>>> ListTopIp(string userId);
         
