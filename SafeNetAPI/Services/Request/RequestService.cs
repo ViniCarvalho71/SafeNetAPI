@@ -3,6 +3,7 @@ using SafeNetAPI.Data;
 using SafeNetAPI.Dto;
 using SafeNetAPI.Models;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc.Diagnostics;
 
 namespace SafeNetAPI.Services.Request
 {
@@ -82,6 +83,7 @@ namespace SafeNetAPI.Services.Request
                 
                 response.Data = resposta;
                 response.Message = "Success";
+                response.QuantidadeRegistros = query.Count();
 
                 return response;
             } catch (Exception ex) 
@@ -94,23 +96,30 @@ namespace SafeNetAPI.Services.Request
 
         }
 
-        public async Task<ResponseModel<List<IpCountDto>>> ListTopIp(string userId)
+        public async Task<ResponseModel<List<IpCountDto>>> ListTopIp(string userId, string search, int page, int pageSize)
         {
             ResponseModel<List<IpCountDto>> response = new ResponseModel<List<IpCountDto>>();
+            
             try
             {
-                var request = await _context.Request.
-                    Where(u => u.UserId == userId && u.IsMalicious == 1).GroupBy(x => x.Ip).
-                    Select(g => new IpCountDto 
+                var consulta_por_usuario = _context.Request.Where(u => (u.UserId == userId && u.IsMalicious == 1))
+                    .GroupBy(x => x.Ip).Select(g => new IpCountDto
                     {
                         Ip = g.Key,
                         Quantidade = g.Count()
-                    }).
-                    OrderByDescending(g => g.Quantidade).
-                    ToListAsync();
+                    });
+                var query = consulta_por_usuario;
+                if (!string.IsNullOrEmpty(search))
+                {
+                    query = consulta_por_usuario.Where(r => r.Ip.Contains(search) || r.Quantidade.ToString() == search);
+
+                }
                 
-                response.Data = request;
+                var resposta =  query.OrderByDescending(g => g.Quantidade).Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                
+                response.Data = resposta;
                 response.Message = "Success";
+                response.QuantidadeRegistros = query.Count();
                 
                 return response;
             }
@@ -122,24 +131,29 @@ namespace SafeNetAPI.Services.Request
                 return response;
             }
         }
-        public async Task<ResponseModel<List<PathCountDto>>> ListTopPath(string userId)
+        public async Task<ResponseModel<List<PathCountDto>>> ListTopPath(string userId, string search, int page, int pageSize)
         {
             ResponseModel<List<PathCountDto>> response = new ResponseModel<List<PathCountDto>>();
             try
             {
-                var request = await _context.Request.
-                    Where(u => u.UserId == userId && u.IsMalicious == 1).
-                    GroupBy(x => x.Path).
-                    Select(g => new PathCountDto 
+                var consulta_por_usuario = _context.Request.Where(u => u.UserId == userId && u.IsMalicious == 1)
+                    .GroupBy(x => x.Path).Select(g => new PathCountDto
                     {
                         Path = g.Key,
                         Quantidade = g.Count()
-                    }).
-                    OrderByDescending(g => g.Quantidade).
-                    ToListAsync();
-                
-                response.Data = request;
+                    });
+                var query = consulta_por_usuario;
+
+                if (!string.IsNullOrEmpty(search))
+                {
+                    query = consulta_por_usuario.Where(r => r.Path.Contains(search) || r.Quantidade.ToString() == search);
+                }
+
+                var resposta = query.OrderByDescending(g => g.Quantidade).Skip((page - 1) * pageSize).Take(pageSize)
+                    .ToList();
+                response.Data = resposta;
                 response.Message = "Success";
+                response.QuantidadeRegistros = query.Count();
                 
                 return response;
             }

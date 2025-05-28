@@ -64,7 +64,7 @@ namespace SafeNetAPI.Controllers
         
         [Authorize]
         [HttpGet("IpsMaisPerigosos")]
-        public async Task<ActionResult<ResponseModel<List<IpCountDto>>>> IpsMaisPerigosos()
+        public async Task<ActionResult<ResponseModel<List<IpCountDto>>>> IpsMaisPerigosos(string search = null, int page = 1, int pageSize = 10)
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
@@ -72,13 +72,13 @@ namespace SafeNetAPI.Controllers
                 return Unauthorized("User is not authenticated.");
             }
 
-            var requests = await _requestInterface.ListTopIp(userId);
+            var requests = await _requestInterface.ListTopIp(userId, search, page, pageSize);
             return Ok(requests);
         }
         
         [Authorize]
         [HttpGet("PathsMaisAtacados")]
-        public async Task<ActionResult<ResponseModel<List<PathCountDto>>>> PathsMaisAtacados()
+        public async Task<ActionResult<ResponseModel<List<PathCountDto>>>> PathsMaisAtacados(string search = null, int page = 1, int pageSize = 10)
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
@@ -86,7 +86,7 @@ namespace SafeNetAPI.Controllers
                 return Unauthorized("User is not authenticated.");
             }
 
-            var requests = await _requestInterface.ListTopPath(userId);
+            var requests = await _requestInterface.ListTopPath(userId, search,page,pageSize);
             return Ok(requests);
         }
 
